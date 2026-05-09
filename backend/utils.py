@@ -81,6 +81,7 @@ def compute_stats():
         "table": users,
     }
 
+
 def compute_attendance_stats():
     raw_data = read_attendance_logs()
 
@@ -88,6 +89,8 @@ def compute_attendance_stats():
         return {
             "total_records": 0,
             "present": 0,
+            "unknown": 0,
+            "error": 0,
             "table": [],
         }
 
@@ -101,6 +104,10 @@ def compute_attendance_stats():
 
         if status == "PRESENT":
             present += 1
+        elif status == "UNKNOWN":
+            unknown += 1
+        elif status == "ERROR":
+            error += 1
 
         table.append({
             "sn": i,
