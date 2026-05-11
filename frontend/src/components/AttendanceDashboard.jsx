@@ -42,7 +42,15 @@ export default function AttendanceDashboard() {
   const handleOpenModal = () => setIsModalOpen(true);
 
   const handleOpenAttendance = () => setIsAttendanceOpen(true);
-  const handleCloseAttendance = () => setIsAttendanceOpen(false);
+  const handleCloseAttendance = () => {
+    setIsAttendanceOpen(false);
+
+    // Only refresh if attendance was submitted
+    if (attendanceMarked) {
+      handleRefresh();
+      setAttendanceMarked(false);
+    }
+  };
 
   if (loading || !stats)
     return <div className="dashboard-wrapper">Loading...</div>;
@@ -103,6 +111,7 @@ export default function AttendanceDashboard() {
       <AttendanceModal
         isOpen={isAttendanceOpen}
         onClose={handleCloseAttendance}
+        onAttendanceMarked={() => setAttendanceMarked(true)}
       />
     </div>
   );

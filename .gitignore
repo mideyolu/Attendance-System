@@ -1,0 +1,25 @@
+# Data files
+backend/data/*.csv
+
+# Node modules
+frontend/node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+backend/__pycache__/
+backend/**/__pycache__/
+
+# Environment
+.env
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

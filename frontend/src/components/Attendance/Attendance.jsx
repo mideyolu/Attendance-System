@@ -10,11 +10,11 @@ import { captureFrame } from "../../utils/canvasUtils";
 import CameraView from "../Camera/CameraView";
 import UserForm from "../Form/UserForm";
 import "./Attendance.css";
-import toast from "react-hot-toast"; // Toast library.
+import toast from "react-hot-toast";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export default function Attendance({ onClose, onAddUser }) {
+export default function Attendance({ onClose, onAddUser, onAttendanceMarked }) {
   const { videoRef, detect } = useFaceModel();
   const canvasRef = useRef(null);
   const { startCamera, stopCamera } = useCamera(videoRef);
@@ -33,6 +33,7 @@ export default function Attendance({ onClose, onAddUser }) {
 
   const [displayConfidence, setDisplayConfidence] = useState(0);
   const [animateCards, setAnimateCards] = useState(false);
+  const [recognizedName, setRecognizedName] = useState("");
 
   const { typeText } = useTypingAnimation();
   const { animateNumber } = useNumberAnimation();
@@ -45,6 +46,7 @@ export default function Attendance({ onClose, onAddUser }) {
     startLiveness,
   } = useLive(isVerifying && !isStabilizing);
 
+  // Check liveness when face is detected
   const onFaceDetected = useCallback(
     (landmarks) => {
       if (isVerifying && !isStabilizing && livenessStatus === "PENDING") {
@@ -64,6 +66,7 @@ export default function Attendance({ onClose, onAddUser }) {
 
   const isCameraActive = hasStarted;
 
+  // Stop camera and reset all states
   const handleStopCamera = async () => {
     stopLoop();
 
@@ -86,11 +89,13 @@ export default function Attendance({ onClose, onAddUser }) {
     setHasStarted(ok);
   };
 
+  // Start camera when component mounts
   useEffect(() => {
     startCamera().then((ok) => ok && setHasStarted(true));
     return () => handleStopCamera();
   }, []);
 
+  // Handle liveness check result
   useEffect(() => {
     if (livenessStatus === "SUCCESS") {
       processRecognition();
@@ -101,6 +106,7 @@ export default function Attendance({ onClose, onAddUser }) {
     }
   }, [livenessStatus]);
 
+  // Start verification process
   const handleStart = async () => {
     setIsVerifying(true);
     setIsProcessing(true);
@@ -113,6 +119,7 @@ export default function Attendance({ onClose, onAddUser }) {
     startLiveness();
   };
 
+  // Capture multiple frames and recognize face
   const processRecognition = async () => {
     const images = [];
 
@@ -143,6 +150,7 @@ export default function Attendance({ onClose, onAddUser }) {
 
         setAnimateCards(true);
 
+        // Animate name, regno, and itype typing
         await Promise.all([
           typeText(name, (v) => setDisplayData((p) => ({ ...p, name: v }))),
           typeText(res?.regno || "", (v) =>
@@ -153,6 +161,7 @@ export default function Attendance({ onClose, onAddUser }) {
           ),
         ]);
 
+        // Animate confidence number
         await animateNumber(
           Math.round(res?.confidence * 100),
           setDisplayConfidence,
@@ -169,14 +178,17 @@ export default function Attendance({ onClose, onAddUser }) {
     }
   };
 
-  // ✅ ONLY CHANGE IMPORTANT FOR AUTO REFRESH
-  const [recognizedName, setRecognizedName] = useState("");
+  // Submit attendance when user clicks Submit button
   const handleAutoSubmit = () => {
     toast.success(`Attendance Marked for ${recognizedName} 🎉`);
 
-    // trigger parent refresh
+    // Tell dashboard that attendance was actually submitted
+    onAttendanceMarked?.();
+
+    // Trigger modal refresh
     onAddUser?.();
 
+    // Close modal
     onClose ? onClose() : handleStopCamera();
   };
 
