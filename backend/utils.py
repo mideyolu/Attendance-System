@@ -11,12 +11,11 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 )
 
-
 def parse_dt(value):
     for fmt in (DATETIME_FORMAT, "%Y-%m-%d %H:%M:%S"):
         try:
             return datetime.strptime(value, fmt)
-        except:
+        except Exception:
             continue
     return datetime.now()
 
@@ -34,7 +33,12 @@ def format_time_ago(dt):
     return f"{diff.days} day(s) ago"
 
 
+
+from collections import Counter
+from datetime import datetime
+
 def compute_stats():
+
     raw_data = read_raw_users()
 
     if not raw_data:
@@ -47,33 +51,60 @@ def compute_stats():
             "table": [],
         }
 
-    users = []
+    users_map = {}   
     hours = []
 
+    # -----------------------------
+    # DEDUP BY REGNO
+    # -----------------------------
     for row in raw_data:
-        dt = parse_dt(row.get("created_at"))
 
+        regno = row.get("regno", "")
+        if not regno:
+            continue
+
+        dt = parse_dt(row.get("created_at"))
         hours.append(dt.hour)
 
-        users.append(
-            {
-                "sn": row.get("S/N"),
-                "regno": row.get("regno", ""),
+        # keep ONLY latest entry per regno
+        if regno not in users_map:
+            users_map[regno] = {
+                "regno": regno,
                 "name": row.get("name", ""),
                 "gender": row.get("gender", "unknown"),
                 "itype": row.get("itype", ""),
                 "enrolled_date": dt.strftime(DATETIME_FORMAT),
+                "created_at_raw": dt
             }
-        )
+        else:
+            # keep most recent record
+            if dt > users_map[regno]["created_at_raw"]:
+                users_map[regno].update({
+                    "name": row.get("name", ""),
+                    "gender": row.get("gender", "unknown"),
+                    "itype": row.get("itype", ""),
+                    "enrolled_date": dt.strftime(DATETIME_FORMAT),
+                    "created_at_raw": dt
+                })
 
+    # convert dict → list
+    users = list(users_map.values())
+
+    # -----------------------------
+    # STATS
+    # -----------------------------
     males = sum(1 for u in users if u["gender"].lower() == "male")
     females = sum(1 for u in users if u["gender"].lower() == "female")
 
-    peak = Counter(hours).most_common(1)[0][0]
-    latest_dt = max(parse_dt(r.get("created_at")) for r in raw_data)
+    peak = Counter(hours).most_common(1)[0][0] if hours else 0
+    latest_dt = max(u["created_at_raw"] for u in users)
+
+    # cleanup response (remove helper field)
+    for u in users:
+        u.pop("created_at_raw", None)
 
     return {
-        "total_users": len(users),
+        "total_users": len(users),   # ✅ FIXED (unique users only)
         "gender": {"male": males, "female": females},
         "peak_hour": f"{peak:02d}:00 - {peak+1:02d}:00",
         "system_status": "Active",
@@ -133,7 +164,7 @@ def compute_attendance_stats():
 
         table.append(
             {
-                "sn": i,
+                "sn": i+1,
                 "regno": row.get("regno", ""),
                 "name": row.get("name", ""),
                 "itype": row.get("itype", ""),
