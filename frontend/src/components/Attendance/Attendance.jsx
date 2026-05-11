@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { useCamera } from "../../hooks/useCamera";
 import { useFaceLoop } from "../../hooks/useFaceLoop";
 import useFaceModel from "../../hooks/useFaceModel";
@@ -10,7 +11,6 @@ import { captureFrame } from "../../utils/canvasUtils";
 import CameraView from "../Camera/CameraView";
 import UserForm from "../Form/UserForm";
 import "./Attendance.css";
-import { toast } from "react-toastify";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -87,7 +87,12 @@ export default function Attendance({ onClose, onAddUser }) {
         if (canvasRef.current) {
             const ctx = canvasRef.current.getContext("2d");
             if (ctx) {
-                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                ctx.clearRect(
+                    0,
+                    0,
+                    canvasRef.current.width,
+                    canvasRef.current.height,
+                );
             }
         }
 
@@ -165,7 +170,6 @@ export default function Attendance({ onClose, onAddUser }) {
             const recognizedName = name; // ✅ FIX
 
             if (name && name.toLowerCase() !== "unknown") {
-
                 if (isSubmitted) return; // ✅ FIX
                 setIsSubmitted(true);
 
@@ -198,9 +202,33 @@ export default function Attendance({ onClose, onAddUser }) {
 
                 handleAutoSubmit(recognizedName); // ✅ FIX
             } else {
-                toast.error("Face not recognized");
+                // toast.error("Face not recognized");
+                // setIsProcessing(false);
+                // setIsVerifying(false);
+                // handleStopCamera(true);
+                const status = res?.attendance_status;
+                const confidence = res?.confidence ?? 0;
+                const margin = res?.margin ?? 0;
+
+                let message = "Face verification failed";
+
+                if (status === "no_face") {
+                    message =
+                        "No face detected. Please position your face properly.";
+                } else if (status === "unknown") {
+                    message =
+                        `Face not recognized confidently. ` +
+                        `(Confidence: ${confidence.toFixed(2)}, Margin: ${margin.toFixed(2)})`;
+                } else if (status === "error") {
+                    message =
+                        "Recognition system could not identify this user.";
+                }
+
+                toast.error(message);
+
                 setIsProcessing(false);
                 setIsVerifying(false);
+
                 handleStopCamera(true);
             }
         } catch (err) {

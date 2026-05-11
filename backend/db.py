@@ -139,22 +139,26 @@ def get_user_by_regno(regno):
 
 
 def has_marked_attendance_today(regno: str):
+
     if not os.path.exists(ATTENDANCE_LOG):
         return False
 
     today = datetime.now().strftime("%Y-%m-%d")
+
+    logger.info(f"[SEARCHING] Duplicate check for: {regno}")
 
     try:
         with open(ATTENDANCE_LOG, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
 
             for row in reader:
+
                 saved_regno = str(row.get("regno", "")).strip()
                 saved_date = str(row.get("date", "")).strip()
                 saved_status = str(row.get("status", "")).strip().upper()
 
                 logger.info(
-                    f"[CHECK] {saved_regno} | {saved_date} | {saved_status}"
+                    f"[ROW] CSV -> {saved_regno} | {saved_date} | {saved_status}"
                 )
 
                 if (
@@ -162,12 +166,16 @@ def has_marked_attendance_today(regno: str):
                     and saved_date == today
                     and saved_status == "PRESENT"
                 ):
+
                     logger.info(
                         f"[DUPLICATE] Attendance already marked for {regno}"
                     )
+
                     return True
 
     except Exception as e:
         logger.error(f"Attendance check failed: {e}")
+
+    logger.info(f"[CLEAR] No attendance found for {regno}")
 
     return False
