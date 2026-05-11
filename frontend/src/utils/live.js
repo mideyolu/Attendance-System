@@ -114,7 +114,7 @@ export class LivenessSession {
                 break;
             case "SMILE":
                 currentValue = calculateMar(mouthPoints);
-                if (currentValue > 0.45) success = true;
+                if (currentValue > 0.30) success = true;
                 break;
             case "TURN_LEFT":
             case "TURN_RIGHT": {
