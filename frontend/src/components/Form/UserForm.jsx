@@ -12,12 +12,27 @@ export default function UserForm({
     isEnrolling,
     isVerified = false,
     confidence = 0,
-     instruction,
-    // challengeType is no longer needed here
+    instruction,
+    challenge,
+    currentValue = 0,
 }) {
     const isAttendance = mode === "attendance";
     const isEnroll = mode === "enroll";
     const isLocked = isAttendance;
+
+    const formatValue = () => {
+        if (!challenge) return "-";
+        // Prevent N/A
+        if (
+            currentValue === undefined ||
+            currentValue === null ||
+            Number.isNaN(currentValue)
+        ) {
+            return 0.0;
+        }
+
+        return Number(currentValue?.toFixed(2));
+    };
 
     return (
         <div className="form-content">
@@ -25,15 +40,44 @@ export default function UserForm({
             <div className="form-header">
                 <h3>{isAttendance ? "Attendance Details" : "User Details"}</h3>
                 {isVerified && (
+                    <div className="verification-badge">
+                        ✅ Verification Complete
+                    </div>
+                )}
+
+                {isAttendance && challenge && (
                     <div
-                        className="verification-badge"
                         style={{
-                            color: "#22c55e",
-                            fontWeight: "bold",
+                            display: "flex",
+                            gap: "0.5rem",
+                            justifyContent: "flex-end",
+                            alignItems: "center",
                             marginTop: "5px",
+                            fontSize: "0.9rem",
+                            color: "#cbd5e1",
                         }}
                     >
-                        ✅ Verification Complete
+                        <span>Challenge:</span>
+                        <span
+                            style={{
+                                fontWeight: "bold",
+                                color: "#38bdf8",
+                                textTransform: "capitalize",
+                            }}
+                        >
+                            {challenge.replace(/_/g, " ")}
+                        </span>
+                        <span style={{ color: "#64748b" }}>|</span>
+                        <span>Value:</span>
+                        <span
+                            style={{
+                                fontWeight: "bold",
+                                color: "#fbbf24",
+                                fontFamily: "monospace",
+                            }}
+                        >
+                            {formatValue()}
+                        </span>
                     </div>
                 )}
             </div>
@@ -57,7 +101,6 @@ export default function UserForm({
             {/* NAME */}
             <div className="input-group">
                 <label className="input-label">Full Name</label>
-                {/* Removed the inner span/metric-tag logic */}
                 <input
                     className="custom-input"
                     value={userData.name || ""}
@@ -129,7 +172,7 @@ export default function UserForm({
                     style={{
                         margin: "10px 0",
                         padding: "10px",
-                        background: "#0f172a",
+                        background: "#",
                         borderRadius: "8px",
                         textAlign: "center",
                     }}

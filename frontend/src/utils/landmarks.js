@@ -10,10 +10,12 @@ export const MOUTH = [61, 81, 13, 311, 291, 308, 14, 178];
 // HEAD POSE LANDMARKS (Canonical points for PnP)
 export const HEAD_POSE_POINTS = [1, 152, 33, 263, 61, 291];
 
+// Functions to calculate EAR
 export const getEyePoints = (landmarks, indices) => {
   return indices.map((i) => landmarks[i]);
 };
 
+// Function to calculate MAR
 export const getMouthPoints = (landmarks, indices) => {
   return indices.map((i) => landmarks[i]);
 };

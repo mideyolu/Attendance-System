@@ -6,15 +6,12 @@ from datetime import datetime
 import logging
 from backend.config import CSV_FILE, DATETIME_FORMAT, ATTENDANCE_LOG
 
-# =========================
 # ENSURE FILE DIRECTORY EXISTS
-# =========================
 os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
 logger = logging.getLogger("attendance")
 
-# =========================
+
 # SERIAL NUMBER
-# =========================
 def get_next_sn():
     if not os.path.isfile(CSV_FILE):
         return 1
@@ -26,9 +23,7 @@ def get_next_sn():
         return 1
 
 
-# =========================
 # SAVE USER + EMBEDDING
-# =========================
 def save_to_csv(user, embedding):
     file_exists = os.path.isfile(CSV_FILE)
 
@@ -70,7 +65,8 @@ def read_attendance_logs():
 
 def save_attendance_log(user, metric, status, score=None, second_score=None):
     if (
-        user.get("name") == "Unknown" or user.get("regno") == ""
+        user.get("name") == "Unknown"
+        or user.get("regno") == ""
     ) and status.upper() == "UNKNOWN":
         logger.info("Unknown user detected. Skipping log entry.")
         return
@@ -91,8 +87,8 @@ def save_attendance_log(user, metric, status, score=None, second_score=None):
         if not file_exists:
             writer.writerow(
                 [
-                    "regno",
                     "name",
+                    "regno",
                     "itype",
                     "status",
                     "score",
@@ -103,10 +99,11 @@ def save_attendance_log(user, metric, status, score=None, second_score=None):
                 ]
             )
 
+        # ROW
         writer.writerow(
             [
-                user.get("regno", ""),
                 user.get("name", ""),
+                user.get("regno", ""),
                 user.get("itype", ""),
                 status,
                 round(score, 4) if score is not None else "",
@@ -118,9 +115,7 @@ def save_attendance_log(user, metric, status, score=None, second_score=None):
         )
 
 
-# =========================
 # READ ALL USERS (RAW)
-# =========================
 def read_raw_users():
     if not os.path.exists(CSV_FILE):
         return []
@@ -129,9 +124,7 @@ def read_raw_users():
         return list(csv.DictReader(f))
 
 
-# =========================
 # GET USER BY REGNO
-# =========================
 def get_user_by_regno(regno):
     if not os.path.exists(CSV_FILE):
         return None
@@ -143,3 +136,38 @@ def get_user_by_regno(regno):
         return None
 
     return user.iloc[0].to_dict()
+
+
+def has_marked_attendance_today(regno: str):
+    if not os.path.exists(ATTENDANCE_LOG):
+        return False
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    try:
+        with open(ATTENDANCE_LOG, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                saved_regno = str(row.get("regno", "")).strip()
+                saved_date = str(row.get("date", "")).strip()
+                saved_status = str(row.get("status", "")).strip().upper()
+
+                logger.info(
+                    f"[CHECK] {saved_regno} | {saved_date} | {saved_status}"
+                )
+
+                if (
+                    saved_regno == str(regno).strip()
+                    and saved_date == today
+                    and saved_status == "PRESENT"
+                ):
+                    logger.info(
+                        f"[DUPLICATE] Attendance already marked for {regno}"
+                    )
+                    return True
+
+    except Exception as e:
+        logger.error(f"Attendance check failed: {e}")
+
+    return False

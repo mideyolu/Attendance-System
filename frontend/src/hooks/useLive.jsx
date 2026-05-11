@@ -1,69 +1,132 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { LivenessSession } from "../utils/live";
-import { getEyePoints, getMouthPoints, LEFT_EYE, MOUTH } from "../utils/landmarks";
+import {
+    getEyePoints,
+    getMouthPoints,
+    LEFT_EYE,
+    MOUTH,
+} from "../utils/landmarks";
 
 export const useLive = (isActive) => {
     const [session, setSession] = useState(null);
-    const [status, setStatus] = useState("IDLE"); // IDLE, PENDING, SUCCESS, TIMEOUT
+    const [status, setStatus] = useState("IDLE");
     const [challenge, setChallenge] = useState(null);
-    const [timeLeft, setTimeLeft] = useState(4);
+    const [timeLeft, setTimeLeft] = useState(5);
+    const [currentValue, setCurrentValue] = useState(0);
 
     const timerRef = useRef(null);
 
-    // ================= INITIALIZE SESSION =================
+    // Create completely NEW randomized challenge every start
     const startLiveness = useCallback(() => {
+        clearInterval(timerRef.current);
+
         const newSession = new LivenessSession();
+
         setSession(newSession);
+
+        // ✅ Force fresh randomized challenge
         setChallenge(newSession.getChallenge());
+
         setStatus("PENDING");
-        setTimeLeft(4);
+
+        // Timer starts AFTER stabilization delay
+        setTimeLeft(5);
+
+        // Reset live metric
+        setCurrentValue(0);
     }, []);
 
-    // ================= TIMER LOGIC =================
+    // ✅ Timer starts ONLY when active and challenge actually pending
     useEffect(() => {
-        if (status === "PENDING" && isActive) {
-            timerRef.current = setInterval(() => {
-                setTimeLeft((prev) => {
-                    if (prev <= 0.1) {
-                        clearInterval(timerRef.current);
-                        return 0;
-                    }
-                    return +(prev - 0.1).toFixed(1);
-                });
-            }, 100);
-        } else {
+        if (status !== "PENDING" || !isActive) {
             clearInterval(timerRef.current);
+            return;
         }
+
+        clearInterval(timerRef.current);
+
+        timerRef.current = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 0.1) {
+                    clearInterval(timerRef.current);
+                    setStatus("TIMEOUT");
+                    return 0;
+                }
+
+                return +(prev - 0.1).toFixed(1);
+            });
+        }, 100);
 
         return () => clearInterval(timerRef.current);
     }, [status, isActive]);
 
-    // ================= PROCESSING FRAME =================
-    // FIX: Added 'session' to dependency array so it uses the current session instance
-    const checkLiveness = useCallback((landmarks) => {
-        if (!session || status !== "PENDING" || !isActive) return;
+    // Process landmarks safely
+    const checkLiveness = useCallback(
+        (landmarks) => {
+            if (!session || status !== "PENDING" || !isActive) return;
 
-        const eyePoints = getEyePoints(landmarks, LEFT_EYE);
-        const mouthPoints = getMouthPoints(landmarks, MOUTH);
+            // Ignore invalid landmarks
+            if (!landmarks || landmarks.length === 0) return;
 
-        const result = session.checkProgress(landmarks, eyePoints, mouthPoints);
+            const eyePoints = getEyePoints(landmarks, LEFT_EYE);
+            const mouthPoints = getMouthPoints(landmarks, MOUTH);
 
-        if (result === "SUCCESS") {
-            setStatus("SUCCESS");
-            clearInterval(timerRef.current);
-        } else if (result === "TIMEOUT") {
-            setStatus("TIMEOUT");
-            clearInterval(timerRef.current);
-        }
-    }, [session, status, isActive]);
+            // ignore incomplete landmark detection
+            if (
+                !eyePoints ||
+                !mouthPoints ||
+                eyePoints.length === 0 ||
+                mouthPoints.length === 0
+            ) {
+                return;
+            }
 
-    // Reset liveness when hook is disabled
+            const result = session.checkProgress(
+                landmarks,
+                eyePoints,
+                mouthPoints
+            );
+
+            if (!result) return;
+
+            const { status: resultStatus, value } = result;
+
+            // Prevent random fallback to 0
+            if (
+                value !== undefined &&
+                value !== null &&
+                !Number.isNaN(value) &&
+                value > 0
+            ) {
+                setCurrentValue(value);
+            }
+
+            if (resultStatus === "SUCCESS") {
+                setStatus("SUCCESS");
+                clearInterval(timerRef.current);
+            }
+
+            if (resultStatus === "TIMEOUT") {
+                setStatus("TIMEOUT");
+                clearInterval(timerRef.current);
+            }
+        },
+        [session, status, isActive]
+    );
+
+    // ✅ FULL reset whenever liveness stops/modal closes
     useEffect(() => {
         if (!isActive) {
+            clearInterval(timerRef.current);
+
             setSession(null);
             setStatus("IDLE");
+
+            // ✅ Clears old challenge completely
             setChallenge(null);
-            setTimeLeft(4);
+
+            setTimeLeft(5);
+            setCurrentValue(0);
         }
     }, [isActive]);
 
@@ -71,6 +134,7 @@ export const useLive = (isActive) => {
         challenge,
         status,
         timeLeft,
+        currentValue,
         checkLiveness,
         startLiveness,
     };

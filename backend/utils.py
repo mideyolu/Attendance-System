@@ -82,6 +82,10 @@ def compute_stats():
     }
 
 
+from collections import Counter
+from datetime import datetime
+
+
 def compute_attendance_stats():
     raw_data = read_attendance_logs()
 
@@ -91,41 +95,115 @@ def compute_attendance_stats():
             "present": 0,
             "unknown": 0,
             "error": 0,
+            "attendance_rate": 0,
+            "peak_hour": "N/A",
             "table": [],
         }
 
     table = []
+
     present = 0
     unknown = 0
     error = 0
+
+    hour_counter = Counter()
 
     for i, row in enumerate(raw_data, start=1):
         status = row.get("status", "").upper()
 
         if status == "PRESENT":
             present += 1
+
         elif status == "UNKNOWN":
             unknown += 1
+
         elif status == "ERROR":
             error += 1
 
-        table.append({
-            "sn": i,
-            "regno": row.get("regno", ""),
-            "name": row.get("name", ""),
-            "itype": row.get("itype", ""),
-            "status": status,
-            "score": float(row["score"]) if row.get("score") else None,
-            "metric": row.get("metric", ""),
-            "date": row.get("date", ""),
-            "time": row.get("time", ""),
-            "timestamp": row.get("timestamp", ""),
-        })
+        timestamp = row.get("timestamp", "")
+
+        # ================= PEAK HOUR =================
+        if timestamp:
+            try:
+                dt = datetime.fromisoformat(timestamp)
+                hour = dt.strftime("%I %p")
+                hour_counter[hour] += 1
+            except Exception:
+                pass
+
+        table.append(
+            {
+                "sn": i,
+                "regno": row.get("regno", ""),
+                "name": row.get("name", ""),
+                "itype": row.get("itype", ""),
+                "status": status,
+                "score": float(row["score"]) if row.get("score") else None,
+                "metric": row.get("metric", ""),
+                "date": row.get("date", ""),
+                "time": row.get("time", ""),
+                "timestamp": timestamp,
+            }
+        )
+
+    total_records = len(table)
+
+    attendance_rate = (
+        round((present / total_records) * 100, 2) if total_records > 0 else 0
+    )
+
+    peak_hour = hour_counter.most_common(1)[0][0] if hour_counter else "N/A"
 
     return {
-        "total_records": len(table),
+        "total_records": total_records,
         "present": present,
         "unknown": unknown,
         "error": error,
+        "attendance_rate": attendance_rate,
+        "peak_hour": peak_hour,
         "table": table,
     }
+
+
+# def compute_attendance_stats():
+#     raw_data = read_attendance_logs()
+
+#     if not raw_data:
+#         return {
+#             "total_records": 0,
+#             "present": 0,
+#             "table": [],
+#         }
+
+#     table = []
+#     present = 0
+#     unknown = 0
+#     error = 0
+
+#     for i, row in enumerate(raw_data, start=1):
+#         status = row.get("status", "").upper()
+
+#         if status == "PRESENT":
+#             present += 1
+
+#         table.append({
+#             "sn": i,
+#             "regno": row.get("regno", ""),
+#             "name": row.get("name", ""),
+#             "itype": row.get("itype", ""),
+#             "status": status,
+#             "score": float(row["score"]) if row.get("score") else None,
+#             "metric": row.get("metric", ""),
+#             "date": row.get("date", ""),
+#             "time": row.get("time", ""),
+#             "timestamp": row.get("timestamp", ""),
+#         })
+
+
+#     return {
+#         "total_records": len(table),
+#         "present": present,
+#         "unknown": unknown,
+#         "error": error,
+#         "table": table,
+#     }
