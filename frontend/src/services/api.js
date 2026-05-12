@@ -33,6 +33,24 @@ export const recognizeUser = async (images) => {
     return data;
 };
 
+// api.js
+
+export const submitAttendance = async (regno) => {
+
+    const res = await fetch(
+        "http://localhost:8000/attendance/submit",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ regno }),
+        },
+    );
+
+    return res.json();
+};
+
 export const getAttendanceStats = async () => {
     const res = await fetch("http://localhost:8000/attendance/stats");
     return res.json();

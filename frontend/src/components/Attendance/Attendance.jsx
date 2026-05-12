@@ -6,7 +6,7 @@ import useFaceModel from "../../hooks/useFaceModel";
 import { useLive } from "../../hooks/useLive";
 import { useNumberAnimation } from "../../hooks/useNumberAnimation";
 import { useTypingAnimation } from "../../hooks/useTypingAnimation";
-import { recognizeUser } from "../../services/api";
+import { recognizeUser, submitAttendance } from "../../services/api";
 import { captureFrame } from "../../utils/canvasUtils";
 import CameraView from "../Camera/CameraView";
 import UserForm from "../Form/UserForm";
@@ -25,7 +25,7 @@ export default function Attendance({ onClose, onAddUser }) {
     const [hasStarted, setHasStarted] = useState(false);
     const [isStabilizing, setIsStabilizing] = useState(false);
 
-    const [isSubmitted, setIsSubmitted] = useState(false); // ✅ FIX
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const [displayData, setDisplayData] = useState({
         name: "",
@@ -74,7 +74,7 @@ export default function Attendance({ onClose, onAddUser }) {
         setIsVerified(false);
         setIsProcessing(false);
         setAnimateCards(false);
-        setIsSubmitted(false); // ✅ FIX
+        setIsSubmitted(false);
 
         setDisplayData({
             name: "",
@@ -123,7 +123,7 @@ export default function Attendance({ onClose, onAddUser }) {
     }, [livenessStatus]);
 
     const handleStart = async () => {
-        setIsSubmitted(false); // ✅ FIX
+        setIsSubmitted(false);
 
         setIsVerifying(true);
         setIsProcessing(true);
@@ -167,13 +167,10 @@ export default function Attendance({ onClose, onAddUser }) {
             }
 
             const name = res?.name || "";
-            const recognizedName = name; // ✅ FIX
 
             if (name && name.toLowerCase() !== "unknown") {
-                if (isSubmitted) return; // ✅ FIX
-                setIsSubmitted(true);
-
                 setIsVerified(true);
+                setIsVerifying(false);
 
                 setDisplayData({ name: "", regno: "", itype: "" });
 
@@ -199,13 +196,7 @@ export default function Attendance({ onClose, onAddUser }) {
                 );
 
                 await delay(800);
-
-                handleAutoSubmit(recognizedName); // ✅ FIX
             } else {
-                // toast.error("Face not recognized");
-                // setIsProcessing(false);
-                // setIsVerifying(false);
-                // handleStopCamera(true);
                 const status = res?.attendance_status;
                 const confidence = res?.confidence ?? 0;
                 const margin = res?.margin ?? 0;
@@ -239,18 +230,33 @@ export default function Attendance({ onClose, onAddUser }) {
         }
     };
 
-    const handleAutoSubmit = (name) => {
-        if (isSubmitted) return; // ✅ safety
+    const handleAutoSubmit = async () => {
+        if (isSubmitted) return;
+
         setIsSubmitted(true);
 
-        toast.success(`Attendance Marked for ${name} 🎉`);
+        try {
+            const res = await submitAttendance(displayData.regno);
 
-        onAddUser?.();
+            if (res.status === "success") {
+                toast.success(`Attendance Marked for ${displayData.name} 🎉`);
 
-        if (onClose) {
-            onClose();
-        } else {
-            handleStopCamera(false);
+                onAddUser?.();
+
+                if (onClose) {
+                    onClose();
+                } else {
+                    handleStopCamera(false);
+                }
+            } else if (res.status === "already_marked") {
+                toast.info("Attendance already marked today");
+            } else {
+                toast.error("Failed to submit attendance");
+            }
+        } catch (err) {
+            console.error(err);
+
+            toast.error("Attendance submission failed");
         }
     };
 
@@ -279,7 +285,7 @@ export default function Attendance({ onClose, onAddUser }) {
                     onStart={handleStart}
                     onStop={() => handleStopCamera(true)}
                     onPause={() => setIsVerifying(false)}
-                    onSubmit={handleAutoSubmit}
+                    onSubmit={() => handleAutoSubmit(displayData.name)}
                     isProcessing={isProcessing}
                     isCameraActive={isCameraActive}
                     isVerified={isVerified}

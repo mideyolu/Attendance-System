@@ -64,15 +64,7 @@ class EnrollmentService:
             # -----------------------------
             # AUGMENT + SAVE + EMBED
             # -----------------------------
-            for aug_name, aug_img in augment_image(img):
-
-                # Save path logic: originals go to /original, others to /augmented
-                if aug_name == "orig":
-                    save_path = os.path.join(orig_dir, f"{idx}_orig.jpg")
-                else:
-                    save_path = os.path.join(aug_dir, f"{idx}_{aug_name}.jpg")
-
-                cv2.imwrite(save_path, aug_img)
+            for _, aug_img in augment_image(img):
 
                 # Generate Embedding using FaceNet512
                 emb = model.predict(aug_img)
