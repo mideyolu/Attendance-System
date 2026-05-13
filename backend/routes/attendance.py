@@ -50,17 +50,13 @@ async def attendance(data: AttendanceRequest):
 async def submit_attendance(data: dict):
 
     try:
-
         regno = data.get("regno")
+        confidence = data.get("confidence", 1.0)
 
-        logger.info(f"[REQUEST] Submit attendance for {regno}")
+        logger.info(f"[REQUEST] Submit attendance for {regno} | confidence={confidence}")
 
-        return AttendanceService.submit_attendance(regno)
+        return AttendanceService.submit_attendance(regno, confidence)
 
     except Exception as e:
-
         logger.error(str(e), exc_info=True)
-
-        return {
-            "status": "error",
-        }
+        return {"status": "error"}

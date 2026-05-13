@@ -35,18 +35,14 @@ export const recognizeUser = async (images) => {
 
 // api.js
 
-export const submitAttendance = async (regno) => {
-
-    const res = await fetch(
-        "http://localhost:8000/attendance/submit",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ regno }),
+export const submitAttendance = async (regno, confidence) => {
+    const res = await fetch("http://localhost:8000/attendance/submit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
         },
-    );
+        body: JSON.stringify({ regno, confidence }),
+    });
 
     return res.json();
 };

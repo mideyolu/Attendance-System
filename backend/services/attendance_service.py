@@ -226,7 +226,7 @@ class AttendanceService:
         }
 
     @staticmethod
-    def submit_attendance(regno: str):
+    def submit_attendance(regno: str, confidence: float =1.0):
         """
         Finalize attendance submission for a verified user.
 
@@ -275,7 +275,7 @@ class AttendanceService:
             user=user_data,
             metric="faiss_voting_normalized",
             status="PRESENT",
-            score=1.0,
+            score=confidence,
             second_score=0.0,
         )
 

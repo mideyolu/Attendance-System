@@ -236,7 +236,7 @@ export default function Attendance({ onClose, onAddUser }) {
         setIsSubmitted(true);
 
         try {
-            const res = await submitAttendance(displayData.regno);
+            const res = await submitAttendance(displayData.regno, displayConfidence / 100);
 
             if (res.status === "success") {
                 toast.success(`Attendance Marked for ${displayData.name} 🎉`);
@@ -285,7 +285,7 @@ export default function Attendance({ onClose, onAddUser }) {
                     onStart={handleStart}
                     onStop={() => handleStopCamera(true)}
                     onPause={() => setIsVerifying(false)}
-                    onSubmit={() => handleAutoSubmit(displayData.name)}
+                    onSubmit={() => handleAutoSubmit(displayData.name, displayConfidence / 100)}
                     isProcessing={isProcessing}
                     isCameraActive={isCameraActive}
                     isVerified={isVerified}
