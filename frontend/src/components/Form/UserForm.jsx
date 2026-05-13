@@ -1,3 +1,4 @@
+import { useRef } from "react";
 /* eslint-disable react/prop-types */
 export default function UserForm({
     mode = "enroll",
@@ -20,18 +21,22 @@ export default function UserForm({
     const isEnroll = mode === "enroll";
     const isLocked = isAttendance;
 
+    const lastValidRef = useRef(0);
+
     const formatValue = () => {
         if (!challenge) return "-";
-        // Prevent N/A
-        if (
-            currentValue === undefined ||
-            currentValue === null ||
-            Number.isNaN(currentValue)
-        ) {
-            return 0.0;
+
+        const isValid =
+            currentValue !== undefined &&
+            currentValue !== null &&
+            !Number.isNaN(currentValue);
+
+        if (isValid) {
+            lastValidRef.current =
+                lastValidRef.current * 0.7 + currentValue * 0.3;
         }
 
-        return Number(currentValue?.toFixed(2));
+        return Number(lastValidRef.current.toFixed(2));
     };
 
     return (
