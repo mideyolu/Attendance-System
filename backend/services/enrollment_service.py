@@ -10,93 +10,189 @@ from backend.services.face_service import (
     apply_clahe,
     load_faiss_index,
 )
-from backend.db import save_to_csv
+
+from backend.db import save_to_csv_batch
 
 logger = logging.getLogger("enrollment")
 
 IMAGES_DIR = "data/images"
 
-# -----------------------------
-# AUGMENTATION (FaceNet-optimized)
-# -----------------------------
+
 def augment_image(img):
-    """Returns (suffix, image) tuples for Bright and Dark variations."""
-    bright = cv2.convertScaleAbs(img, alpha=1.2, beta=30)
-    dark = cv2.convertScaleAbs(img, alpha=0.9, beta=-20)
+    """
+    Generate image variations to improve model robustness.
+
+    Returns a list of (suffix, image) tuples containing:
+    - Original image
+    - Brightened image (for low-light conditions)
+    - Darkened image (for overexposed conditions)
+    """
+    # Increase brightness and contrast
+    bright = cv2.convertScaleAbs(
+        img,
+        alpha=1.2,  # Contrast increase
+        beta=30     # Brightness increase
+    )
+
+    # Decrease brightness and contrast
+    dark = cv2.convertScaleAbs(
+        img,
+        alpha=0.9,  # Slight contrast reduction
+        beta=-20    # Brightness decrease
+    )
+
     return [
         ("orig", img),
         ("bright", bright),
-        ("dark", dark)
+        ("dark", dark),
     ]
+
 
 class EnrollmentService:
 
     @staticmethod
     def process_enrollment(user, images: list):
-        # Using provided user details directly
-        logger.info(f"Enrollment started for: {user.name} ({user.regno})")
+        """
+        Process user enrollment by generating embeddings from provided images.
+
+        Args:
+            user: User object containing regno, name, gender, itype
+            images: List of base64 encoded images
+
+        Returns:
+            dict: Status and enrollment details
+        """
+        # Log enrollment start
+        logger.info("=" * 70)
+        logger.info("[ENROLLMENT STARTED]")
+        logger.info(
+            f"[USER] {user.name} ({user.regno})"
+        )
+        logger.info(
+            f"[INPUT IMAGES] {len(images)}"
+        )
+        logger.info("=" * 70)
 
         embeddings = []
+        rows_to_save = []
 
-        # Folder structure setup under the provided user name
-        person_dir = os.path.join(IMAGES_DIR, user.name)
-        orig_dir = os.path.join(person_dir, "original")
-        aug_dir = os.path.join(person_dir, "augmented")
+        created_at = datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S.%f"
+        )
 
-        os.makedirs(orig_dir, exist_ok=True)
-        os.makedirs(aug_dir, exist_ok=True)
+        # Process each uploaded image
+        for idx, img_b64 in enumerate(images):
 
-        idx = 0
-        # High-precision timestamp: 2026-05-11 13:46:26.945876
-        created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+            logger.info("-" * 60)
+            logger.info(
+                f"[IMAGE {idx+1}/{len(images)}]"
+            )
 
-        for img_b64 in images:
+            # Decode base64 to OpenCV image
             img = decode_image(img_b64)
+
             if img is None:
-                logger.warning(f"Invalid image index {idx} skipped")
+                logger.warning(
+                    f"[IMAGE {idx+1}] Decode failed"
+                )
                 continue
 
-            # Pre-processing (CLAHE for low light robustness)
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            if np.mean(gray) < 80:
+            # Check image brightness for quality
+            gray = cv2.cvtColor(
+                img,
+                cv2.COLOR_BGR2GRAY
+            )
+
+            brightness = float(np.mean(gray))
+
+            logger.info(
+                f"[IMAGE {idx+1}] Brightness={brightness:.2f}"
+            )
+
+            # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+            # for low-light images to improve feature extraction
+            if brightness < 80:
                 img = apply_clahe(img)
-
-            # -----------------------------
-            # AUGMENT + SAVE + EMBED
-            # -----------------------------
-            for _, aug_img in augment_image(img):
-
-                # Generate Embedding using FaceNet512
-                emb = model.predict(aug_img)
-                embeddings.append(emb)
-
-                # Persist to CSV/Database
-                save_to_csv(
-                    {
-                        "regno": user.regno,
-                        "name": user.name,
-                        "itype": getattr(user, 'itype', 'SIWES'), # Fallback if itype not on user object
-                        "created_at": created_at
-                    },
-                    emb
+                logger.info(
+                    f"[IMAGE {idx+1}] CLAHE applied"
                 )
 
-            idx += 1
+            # Generate augmented versions of the image
+            for aug_name, aug_img in augment_image(img):
 
+                logger.info(
+                    f"[AUGMENT] {aug_name}"
+                )
+
+                # Generate face embedding using the model
+                emb = model.predict(aug_img)
+
+                logger.info(
+                    f"[EMBEDDING] Shape={emb.shape}"
+                )
+
+                embeddings.append(emb)
+
+                # Prepare data for batch database insertion
+                rows_to_save.append({
+                    "user": {
+                        "regno": user.regno,
+                        "name": user.name,
+                        "gender": getattr(
+                            user,
+                            "gender",
+                            ""
+                        ),
+                        "itype": getattr(
+                            user,
+                            "itype",
+                            "SIWES"
+                        ),
+                    },
+                    "embedding": emb,
+                })
+
+        # Validate that we generated at least one embedding
         if not embeddings:
-            logger.error("No valid embeddings generated")
-            return {"status": "error", "message": "Zero valid embeddings"}
+            logger.error(
+                "[FAILED] No valid embeddings generated"
+            )
+            return {
+                "status": "error",
+                "message": "Zero valid embeddings",
+            }
 
-        # Refresh the FAISS index to make the new user immediately recognizable
-        load_faiss_index()
-
+        # Save all embeddings to CSV in a single batch operation
         logger.info(
-            f"Enrollment done | {user.name} | total_variants={len(embeddings)}"
+            f"[CSV SAVE] Saving {len(rows_to_save)} embeddings"
         )
+        save_to_csv_batch(rows_to_save)
+        logger.info(
+            "[CSV SAVE] Completed"
+        )
+
+        # Reload FAISS index to include newly enrolled user
+        logger.info(
+            "[FAISS] Reloading index"
+        )
+        load_faiss_index()
+        logger.info(
+            "[FAISS] Reload complete"
+        )
+
+        # Log successful enrollment
+        logger.info("=" * 70)
+        logger.info("[ENROLLMENT SUCCESS]")
+        logger.info(f"[USER] {user.name}")
+        logger.info(f"[REGNO] {user.regno}")
+        logger.info(
+            f"[TOTAL EMBEDDINGS] {len(embeddings)}"
+        )
+        logger.info("=" * 70)
 
         return {
             "status": "success",
             "name": user.name,
             "regno": user.regno,
-            "stored_embeddings": len(embeddings)
+            "stored_embeddings": len(embeddings),
         }

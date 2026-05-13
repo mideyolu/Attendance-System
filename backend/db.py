@@ -1,5 +1,3 @@
-
-
 import csv
 import os
 import json
@@ -12,18 +10,21 @@ os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
 logger = logging.getLogger("attendance")
 
 # SAVE USER + EMBEDDING
-def save_to_csv(user, embedding):
+# SAVE MULTIPLE USERS + EMBEDDINGS
+def save_to_csv_batch(rows):
+
     file_exists = os.path.isfile(CSV_FILE)
 
-    # Convert numpy → list → JSON string
-    embedding_json = json.dumps(embedding.astype(float).tolist())
-
-    # Use quoting=csv.QUOTE_ALL to prevent commas in embeddings/names from splitting columns
     with open(CSV_FILE, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+
+        writer = csv.writer(
+            f,
+            quoting=csv.QUOTE_ALL
+        )
 
         # Header: 6 Columns (No S/N)
         if not file_exists:
+
             writer.writerow([
                 "regno",
                 "name",
@@ -33,15 +34,29 @@ def save_to_csv(user, embedding):
                 "created_at"
             ])
 
-        # Row: 6 Columns
-        writer.writerow([
-            user.get("regno", ""),
-            user.get("name", ""),
-            user.get("gender", ""),
-            user.get("itype", ""),
-            embedding_json,
-            datetime.now().strftime(DATETIME_FORMAT),
-        ])
+        batch_rows = []
+
+        for row in rows:
+
+            user = row["user"]
+            embedding = row["embedding"]
+
+            # Convert numpy → list → JSON string
+            embedding_json = json.dumps(
+                embedding.astype(float).tolist()
+            )
+
+            batch_rows.append([
+                user.get("regno", ""),
+                user.get("name", ""),
+                user.get("gender", ""),
+                user.get("itype", ""),
+                embedding_json,
+                datetime.now().strftime(DATETIME_FORMAT),
+            ])
+
+        # WRITE ALL ROWS AT ONCE
+        writer.writerows(batch_rows)
 
 def read_attendance_logs():
     if not os.path.exists(ATTENDANCE_LOG):

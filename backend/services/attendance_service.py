@@ -20,6 +20,7 @@ from backend.db import (
 
 logger = logging.getLogger("attendance")
 
+# Minimum similarity score to accept a face match (0.0 to 1.0)
 THRESHOLD = 0.40
 
 
@@ -27,34 +28,51 @@ class AttendanceService:
 
     @staticmethod
     def process_attendance(images: list):
+        """
+        Process multiple frames to recognize a user's face and determine attendance eligibility.
 
+        Uses a voting mechanism across frames to increase accuracy:
+        - Each frame that successfully recognizes a face adds votes
+        - The user with the highest total vote wins
+        - Margin between winner and runner-up indicates confidence
+
+        Args:
+            images: List of base64 encoded image frames
+
+        Returns:
+            dict: Recognition results including user info and attendance status
+        """
         logger.info("=" * 70)
         logger.info("[ATTENDANCE RECOGNITION STARTED]")
         logger.info(f"[INPUT] Frames received: {len(images)}")
         logger.info("=" * 70)
 
+        # Initialize FAISS index if not already loaded
         if face_service.faiss_index is None:
             load_faiss_index()
             logger.info("[INIT] FAISS index loaded")
 
-        votes = defaultdict(float)
-        frame_count = defaultdict(int)
+        # Voting accumulators across all frames
+        votes = defaultdict(float)      # Total weighted votes per user
+        frame_count = defaultdict(int)  # Number of frames that recognized each user
 
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
 
-        # PROCESS FRAMES
+        # Process each frame independently
         for i, img_str in enumerate(images):
 
             logger.info("-" * 60)
             logger.info(f"[FRAME {i+1}/{len(images)}] START")
 
+            # Convert base64 to OpenCV image
             img = decode_image(img_str)
 
             if img is None:
                 logger.warning(f"[FRAME {i+1}] Decode failed")
                 continue
 
+            # Check image quality
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             brightness = float(np.mean(gray))
 
@@ -62,16 +80,19 @@ class AttendanceService:
                 f"[FRAME {i+1}] Brightness = {brightness:.2f}"
             )
 
+            # Apply CLAHE to improve low-light face detection
             if brightness < 80:
                 img = apply_clahe(img)
                 logger.info(f"[FRAME {i+1}] CLAHE applied")
 
+            # Generate face embedding
             emb = model.predict(img).reshape(1, -1)
 
             logger.info(
                 f"[FRAME {i+1}] Embedding shape = {emb.shape}"
             )
 
+            # Search FAISS index for top 5 closest matches
             scores, indices = face_service.faiss_index.search(emb, 5)
 
             logger.info(f"[FRAME {i+1}] TOP MATCHES")
@@ -79,6 +100,7 @@ class AttendanceService:
             best_score = float(scores[0][0])
             best_idx = int(indices[0][0])
 
+            # Check if we found any match
             if best_idx != -1:
 
                 user = face_service.id_map[best_idx]
@@ -88,40 +110,35 @@ class AttendanceService:
                     f"🎯 BEST MATCH → {regno} | score={best_score:.4f}"
                 )
 
+                # Only accept if confidence meets threshold
                 if best_score >= THRESHOLD:
-
+                    # Weight vote by confidence score
                     votes[regno] += best_score
                     frame_count[regno] += 1
 
                     logger.info(
                         f"✅ ACCEPTED → {regno}"
                     )
-
                 else:
-
                     logger.warning(
                         f"❌ REJECTED → {regno} | "
                         f"score={best_score:.4f} < {THRESHOLD}"
                     )
 
-            # DEBUG ALL CANDIDATES
+            # Log all candidates for debugging
             for score, idx in zip(scores[0], indices[0]):
-
                 if idx == -1:
                     continue
 
                 user = face_service.id_map[idx]
-
                 logger.info(
                     f"→ candidate: "
                     f"{user['regno']} | score={score:.4f}"
                 )
 
-        # NO VALID FACE
+        # No valid faces detected in any frame
         if not votes:
-
             logger.warning("[RESULT] No valid faces detected")
-
             return {
                 "regno": "Unknown",
                 "name": "Unknown",
@@ -132,7 +149,7 @@ class AttendanceService:
                 "margin": 0.0,
             }
 
-        # FINAL DECISION
+        # Determine winner by highest accumulated votes
         sorted_votes = sorted(
             votes.items(),
             key=lambda x: x[1],
@@ -141,6 +158,7 @@ class AttendanceService:
 
         best_regno, best_score = sorted_votes[0]
 
+        # Calculate margin over second place (if exists)
         second_score = (
             sorted_votes[1][1]
             if len(sorted_votes) > 1
@@ -149,6 +167,7 @@ class AttendanceService:
 
         frames_used = frame_count[best_regno]
 
+        # Calculate average confidence across frames
         avg_score = (
             best_score / frames_used
             if frames_used > 0
@@ -157,11 +176,13 @@ class AttendanceService:
 
         confidence_percent = round(avg_score, 2)
 
+        # Margin indicates how decisive the win was
         margin_percent = round(
             ((best_score - second_score) / len(images)) * 100,
             2,
         )
 
+        # Fetch full user details
         user_data = next(
             (
                 u
@@ -178,15 +199,11 @@ class AttendanceService:
         logger.info(f"[MARGIN] {margin_percent}")
         logger.info("=" * 70)
 
-        # IMPORTANT:
-        # NO CSV SAVE HERE ANYMORE
-
+        # Check if user already marked attendance today
         if has_marked_attendance_today(best_regno):
-
             logger.warning(
                 f"[ALREADY MARKED] {best_regno}"
             )
-
             return {
                 "regno": best_regno,
                 "name": user_data.get("name", "Unknown"),
@@ -197,6 +214,7 @@ class AttendanceService:
                 "margin": margin_percent,
             }
 
+        # User verified and eligible for attendance
         return {
             "regno": best_regno,
             "name": user_data.get("name", "Unknown"),
@@ -209,7 +227,15 @@ class AttendanceService:
 
     @staticmethod
     def submit_attendance(regno: str):
+        """
+        Finalize attendance submission for a verified user.
 
+        Args:
+            regno: Student registration number to mark attendance for
+
+        Returns:
+            dict: Submission status
+        """
         logger.info("=" * 70)
         logger.info("[ATTENDANCE SUBMIT STARTED]")
         logger.info(f"[REGNO] {regno}")
@@ -217,6 +243,7 @@ class AttendanceService:
 
         current_date = datetime.now().strftime("%Y-%m-%d")
 
+        # Retrieve user information from index
         user_data = next(
             (
                 u
@@ -227,26 +254,23 @@ class AttendanceService:
         )
 
         if not user_data:
-
             logger.error(
                 f"[SUBMIT FAILED] User not found: {regno}"
             )
-
             return {
                 "status": "unknown",
             }
 
+        # Prevent duplicate submissions
         if has_marked_attendance_today(regno):
-
             logger.warning(
                 f"[SUBMIT SKIPPED] Already marked: {regno}"
             )
-
             return {
                 "status": "already_marked",
             }
 
-        # SAVE TO CSV HERE
+        # Persist attendance record to CSV
         save_attendance_log(
             user=user_data,
             metric="faiss_voting_normalized",
