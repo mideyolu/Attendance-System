@@ -138,7 +138,7 @@ export default function CameraView({
                             fontFamily: "monospace",
                             minWidth: "40px",
                             textAlign: "center",
-                            opacity: "0"
+                            opacity: "1"
                         }}
                     >
                         {timeLeft !== undefined
