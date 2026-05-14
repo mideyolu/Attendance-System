@@ -103,8 +103,8 @@ To provide organizations, schools, or event organizers with a touchless, highly 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/facial-recognition-attendance.git
-cd facial-recognition-attendance
+git clone https://github.com/mideyolu/Attendance-System.git
+cd Attendance-System
 ```
 
 ### 2. Backend Setup
@@ -206,9 +206,9 @@ VITE_API_URL=http://localhost:8000
 
 ## 📸 Screenshots
 
-| Dashboard View               | Live Recognition             |
-| ---------------------------- | ---------------------------- |
-| _(Add your screenshot here)_ | _(Add your screenshot here)_ |
+| Dashboard View               | Live Recognition               |
+| ---------------------------- | ------------------------------ |
+| _(Add your screenshot here)_ | ![Live Recognition](image.png) |
 
 ---
 
@@ -222,8 +222,9 @@ VITE_API_URL=http://localhost:8000
 6.  **Multi-Camera Integration:** Support simultaneous streams from multiple camera nodes to cover large areas without bottlenecks.
 7.  **Mobile Ecosystem:** Develop native iOS and Android applications to allow for mobile management and attendance tracking.
 8.  **Duplicate Enrollment Prevention:** Implement a "One-Face-One-Identity" check during enrollment that scans the existing FAISS index to prevent the same individual from registering under multiple IDs.
-9. **Session-Based Attendance Logic:** Introduce a sessionized recognition workflow where each user is granted a maximum of **2 trials** per session. If recognition fails twice, the system flags the attempt for manual administrator review.
-10.  **Dockerization:** Add a `docker-compose.yml` to spin up both frontend and backend synchronously in isolated containers.
+9.  **Session-Based Attendance Logic:** Introduce a sessionized recognition workflow where each user is granted a maximum of **2 trials** per session. If recognition fails twice, the system flags the attempt for manual administrator review.
+10. **Dockerization:** Add a `docker-compose.yml` to spin up both frontend and backend synchronously in isolated containers.
+
 ---
 
 ## 📜 License
