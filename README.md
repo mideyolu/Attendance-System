@@ -88,7 +88,7 @@ To provide organizations, schools, or event organizers with a touchless, highly 
 3. **Payload Dispatch:** The images are structured via JSON and sent to the FastAPI backend endpoints via `Axios`/`Fetch`.
 4. **AI Inference Pipeline:**
     - Backend preprocesses the base64 images using OpenCV.
-    - A face detection layer (MediaPipe/RetinaFace) extracts the face bounding box.
+    - A face detection layer (MediaPipe Task models) extracts the face bounding box.
     - The cropped face is passed to `FaceNet512` (running on ONNX Runtime) to generate a `512D` embedding.
 5. **Vector Search / DB Ops:**
     - **Enrollment:** The new embedding is saved into `enrollments.csv`.
@@ -161,7 +161,7 @@ Currently, the system is file-dependent for fast portability, using two distinct
 
 ## 🧠 AI/ML Technical Details
 
-- **Model Utilized:** `FaceNet512` executed dynamically via `onnxruntime` for high throughput bypassing heavy TensorFlow/PyTorch dependencies.
+- **Model Utilized:** `FaceNet512` executed dynamically via `onnxruntime` for high throughput bypassing heavy TensorFlow/PyTorch dependencies. _(Note: The ONNX version of FaceNet512 used in this project was sourced from [deepface-onnx](https://github.com/Ali-Fayzi/deepface-onnx/tree/master))._
 - **Vector Search Engine:** `faiss-cpu`.
 - **Similarity Metric:** The FAISS index uses `IndexFlatIP` (Inner Product). As FaceNet applies L2 normalization natively, Inner Product is equivalent to **Cosine Similarity**, calculating the angular distance between vectors to ensure confident matching regardless of lighting nuances.
 
@@ -196,8 +196,8 @@ npm run build
 Create a `.env` file in the root of your frontend directory if you plan to abstract API paths.
 
 ```env
-# app/frontend/.env.example
-VITE_API_URL=http://localhost:8000
+# app/frontend/
+VITE_API_URL=http://localhost:5173
 ```
 
 > Currently, the backend configures environmental paths intrinsically via `backend/config.py`.
@@ -206,11 +206,11 @@ VITE_API_URL=http://localhost:8000
 
 ## 📸 Screenshots
 
-| Dashboard View               | Live Recognition               |
-| ---------------------------- | ------------------------------ |
-| _(Add your screenshot here)_ | ![Live Recognition](image1.png) |
-| _(Add your screenshot here)_ | ![Live Recognition](image2.png) |
-| _(Add your screenshot here)_ | ![Live Recognition](image3.png) |
+| Dashboard View                                    | Live Recognition                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| ![Onboarding](onboarding.png)                     | ![Live Recognition - Donatus Valentine - Group Leader](image1.png) |
+| ![Enrollment Dashboard](enroll-dashboard.png)     | ![Live Recognition - Oluwuyi Olumide - Tech lead](image2.png)      |
+| ![Attendance Dashboard](attendance-dashboard.png) | ![Live Recognition - Ahmad El-Hussein](image3.png)                 |
 
 ---
 
@@ -228,6 +228,25 @@ VITE_API_URL=http://localhost:8000
 10. **Dockerization:** Add a `docker-compose.yml` to spin up both frontend and backend synchronously in isolated containers.
 
 ---
+
+## Key Contributors
+
+1. **Donatus Valentine - Group Leader & Supporting Tech Lead**
+2. **Oluwuyi Olumide - Tech Lead**
+3. **Ahmad El-Hussein**
+
+##### Others
+
+4. **Ademola**
+5. **Sa'ad Abdul**
+
+---
+
+## 🤝 Forking & Attribution
+
+If you choose to fork or use this project as a foundation for your own work, we kindly request that you provide proper attribution by referencing this original repository.
+
+Please include a section in your `README.md` or documentation that links back to this repository to acknowledge the original authors and their contributions.
 
 ## 📜 License
 
