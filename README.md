@@ -208,7 +208,9 @@ VITE_API_URL=http://localhost:8000
 
 | Dashboard View               | Live Recognition               |
 | ---------------------------- | ------------------------------ |
-| _(Add your screenshot here)_ | ![Live Recognition](image.png) |
+| _(Add your screenshot here)_ | ![Live Recognition](image1.png) |
+| _(Add your screenshot here)_ | ![Live Recognition](image2.png) |
+| _(Add your screenshot here)_ | ![Live Recognition](image3.png) |
 
 ---
 
