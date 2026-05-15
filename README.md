@@ -203,6 +203,13 @@ VITE_API_URL=http://localhost:5173
 > Currently, the backend configures environmental paths intrinsically via `backend/config.py`.
 
 ---
+## 🤝 Forking & Attribution
+
+If you choose to fork or use this project as a foundation for your own work, we kindly request that you provide proper attribution by referencing this original repository.
+
+Please include a section in your `README.md` or documentation that links back to this repository to acknowledge the original authors and their contributions
+
+---
 
 ## 📸 Screenshots
 
@@ -269,12 +276,6 @@ VITE_API_URL=http://localhost:5173
 5. **Sa'ad Abdul**
 
 ---
-
-## 🤝 Forking & Attribution
-
-If you choose to fork or use this project as a foundation for your own work, we kindly request that you provide proper attribution by referencing this original repository.
-
-Please include a section in your `README.md` or documentation that links back to this repository to acknowledge the original authors and their contributions.
 
 ## 📜 License
 
