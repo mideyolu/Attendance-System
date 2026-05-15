@@ -206,11 +206,11 @@ VITE_API_URL=http://localhost:5173
 
 ## 📸 Screenshots
 
-| Dashboard View                                    | Live Recognition                                                   |
-| ------------------------------------------------- | ------------------------------------------------------------------ |
-| ![Onboarding](onboarding.png)                     | ![Live Recognition - Donatus Valentine - Group Leader](image1.png) |
-| ![Enrollment Dashboard](enroll-dashboard.png)     | ![Live Recognition - Oluwuyi Olumide - Tech lead](image2.png)      |
-| ![Attendance Dashboard](attendance-dashboard.png) | ![Live Recognition - Ahmad El-Hussein](image3.png)                 |
+| Dashboard View                                    | Live Recognition                                                                                 |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| ![Onboarding](onboarding.png)                     | ![Live Recognition - Donatus Valentine](image1.png)                                              |
+| ![Enrollment Dashboard](enroll-dashboard.png)     | [![Live Recognition - Oluwuyi Olumide](image2.png)](https://www.linkedin.com/in/olumide-oluwuyi/)|
+| ![Attendance Dashboard](attendance-dashboard.png) | ![Live Recognition - Ahmad El-Hussein](image3.png)                                               |
 
 ---
 
