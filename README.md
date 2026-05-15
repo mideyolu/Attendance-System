@@ -32,7 +32,7 @@ To provide organizations, schools, or event organizers with a touchless, highly 
 ### AI / Machine Learning
 
 - **FaceNet512 / ONNX**: Generating 512-dimensional face embeddings via `onnxruntime`.
-- **MediaPipe / RetinaFace**: High-precision face detection.
+- **MediaPipe**: High-precision face detection.
 - **FAISS (Facebook AI Similarity Search)**: Blazing-fast vector similarity search for face matching.
 - **OpenCV**: Image preprocessing and base64 handling.
 
@@ -203,14 +203,42 @@ VITE_API_URL=http://localhost:5173
 > Currently, the backend configures environmental paths intrinsically via `backend/config.py`.
 
 ---
+## 🤝 Forking & Attribution
+
+If you choose to fork or use this project as a foundation for your own work, we kindly request that you provide proper attribution by referencing this original repository.
+
+Please include a section in your `README.md` or documentation that links back to this repository to acknowledge the original authors and their contributions
+
+---
 
 ## 📸 Screenshots
 
-| Dashboard View                                    | Live Recognition                                                                                 |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| ![Onboarding](onboarding.png)                     | ![Live Recognition - Donatus Valentine](image1.png)                                              |
-| ![Enrollment Dashboard](enroll-dashboard.png)     | [![Live Recognition - Oluwuyi Olumide](image2.png)](https://www.linkedin.com/in/olumide-oluwuyi/)|
-| ![Attendance Dashboard](attendance-dashboard.png) | ![Live Recognition - Ahmad El-Hussein](image3.png)                                               |
+    <td align="center">
+      <img src="onboarding.png" alt="Onboarding" width="100%" />
+    </td>
+    <td align="center">
+      <img src="image1.png" alt="Live Recognition - Donatus Valentine - Group Leader" width="100%" />
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <img src="enroll-dashboard.png" alt="Enrollment Dashboard" width="100%" />
+    </td>
+    <td align="center">
+      <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <img src="attendance-dashboard.png" alt="Attendance Dashboard" width="100%" />
+    </td>
+    <td align="center">
+      <img src="image3.png" alt="Live Recognition - Ahmad El-Hussein" width="100%" />
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -218,7 +246,6 @@ VITE_API_URL=http://localhost:5173
 
 1.  **Database Migration:** Transition from CSV to PostgreSQL / MongoDB for transactional integrity. Use vector databases like Milvus, Qdrant, or pgvector for FAISS scaling.
 2.  **Advanced Anti-Spoofing:** Implement a Deep Learning liveness detection pipeline to prevent users from presenting digital photos to the camera. Explore depth sensing and 3D liveness modules for higher security.
-3.  **Admin Authentication:** Implement secure JWT login routes shielding the `/enroll` and `/stats` visualization panels.
 4.  **Low-Light Optimization:** Integrate adaptive lighting models beyond standard CLAHE to ensure high recognition accuracy in dimly lit environments.
 5.  **Cloud Infrastructure:** Replace local CSV storage with hosted database solutions and real-time synchronization for global data access.
 6.  **Multi-Camera Integration:** Support simultaneous streams from multiple camera nodes to cover large areas without bottlenecks.
@@ -241,12 +268,6 @@ VITE_API_URL=http://localhost:5173
 5. **Sa'ad Abdul**
 
 ---
-
-## 🤝 Forking & Attribution
-
-If you choose to fork or use this project as a foundation for your own work, we kindly request that you provide proper attribution by referencing this original repository.
-
-Please include a section in your `README.md` or documentation that links back to this repository to acknowledge the original authors and their contributions.
 
 ## 📜 License
 
