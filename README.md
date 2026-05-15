@@ -203,6 +203,7 @@ VITE_API_URL=http://localhost:5173
 > Currently, the backend configures environmental paths intrinsically via `backend/config.py`.
 
 ---
+
 ## 🤝 Forking & Attribution
 
 If you choose to fork or use this project as a foundation for your own work, we kindly request that you provide proper attribution by referencing this original repository.
@@ -219,6 +220,7 @@ Please include a section in your `README.md` or documentation that links back to
     <td align="center">
       <img src="image1.png" alt="Live Recognition - Donatus Valentine - Group Leader" width="100%" />
     </td>
+
   </tr>
 
   <tr>
@@ -226,7 +228,8 @@ Please include a section in your `README.md` or documentation that links back to
       <img src="enroll-dashboard.png" alt="Enrollment Dashboard" width="100%" />
     </td>
     <td align="center">
-      <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
+        <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
+       <a href="https://www.linkedin.com/in/olumide-oluwuyi/">Linkdin</a>
     </td>
   </tr>
 
@@ -246,13 +249,13 @@ Please include a section in your `README.md` or documentation that links back to
 
 1.  **Database Migration:** Transition from CSV to PostgreSQL / MongoDB for transactional integrity. Use vector databases like Milvus, Qdrant, or pgvector for FAISS scaling.
 2.  **Advanced Anti-Spoofing:** Implement a Deep Learning liveness detection pipeline to prevent users from presenting digital photos to the camera. Explore depth sensing and 3D liveness modules for higher security.
-4.  **Low-Light Optimization:** Integrate adaptive lighting models beyond standard CLAHE to ensure high recognition accuracy in dimly lit environments.
-5.  **Cloud Infrastructure:** Replace local CSV storage with hosted database solutions and real-time synchronization for global data access.
-6.  **Multi-Camera Integration:** Support simultaneous streams from multiple camera nodes to cover large areas without bottlenecks.
-7.  **Mobile Ecosystem:** Develop native iOS and Android applications to allow for mobile management and attendance tracking.
-8.  **Duplicate Enrollment Prevention:** Implement a "One-Face-One-Identity" check during enrollment that scans the existing FAISS index to prevent the same individual from registering under multiple IDs.
-9.  **Session-Based Attendance Logic:** Introduce a sessionized recognition workflow where each user is granted a maximum of **2 trials** per session. If recognition fails twice, the system flags the attempt for manual administrator review.
-10. **Dockerization:** Add a `docker-compose.yml` to spin up both frontend and backend synchronously in isolated containers.
+3.  **Low-Light Optimization:** Integrate adaptive lighting models beyond standard CLAHE to ensure high recognition accuracy in dimly lit environments.
+4.  **Cloud Infrastructure:** Replace local CSV storage with hosted database solutions and real-time synchronization for global data access.
+5.  **Multi-Camera Integration:** Support simultaneous streams from multiple camera nodes to cover large areas without bottlenecks.
+6.  **Mobile Ecosystem:** Develop native iOS and Android applications to allow for mobile management and attendance tracking.
+7.  **Duplicate Enrollment Prevention:** Implement a "One-Face-One-Identity" check during enrollment that scans the existing FAISS index to prevent the same individual from registering under multiple IDs.
+8.  **Session-Based Attendance Logic:** Introduce a sessionized recognition workflow where each user is granted a maximum of **2 trials** per session. If recognition fails twice, the system flags the attempt for manual administrator review.
+9.  **Dockerization:** Add a `docker-compose.yml` to spin up both frontend and backend synchronously in isolated containers.
 
 ---
 
