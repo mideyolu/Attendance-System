@@ -234,7 +234,7 @@ Please include a section in your `README.md` or documentation that links back to
     </td>
     <td align="center">
       <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
-       <a href="https://www.linkedin.com/in/olumide-oluwuyi/">Linkdin</a>
+       <a href="https://www.linkedin.com/in/olumide-oluwuyi/">Linkedin</a>
     </td>
   </tr>
 
