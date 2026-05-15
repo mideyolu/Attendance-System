@@ -32,7 +32,7 @@ To provide organizations, schools, or event organizers with a touchless, highly 
 ### AI / Machine Learning
 
 - **FaceNet512 / ONNX**: Generating 512-dimensional face embeddings via `onnxruntime`.
-- **MediaPipe / RetinaFace**: High-precision face detection.
+- **MediaPipe**: High-precision face detection.
 - **FAISS (Facebook AI Similarity Search)**: Blazing-fast vector similarity search for face matching.
 - **OpenCV**: Image preprocessing and base64 handling.
 
