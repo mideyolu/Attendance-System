@@ -206,11 +206,39 @@ VITE_API_URL=http://localhost:5173
 
 ## 📸 Screenshots
 
-| Dashboard View                                    | Live Recognition                                                   |
-| ------------------------------------------------- | ------------------------------------------------------------------ |
-| ![Onboarding](onboarding.png)                     | ![Live Recognition - Donatus Valentine - Group Leader](image1.png) |
-| ![Enrollment Dashboard](enroll-dashboard.png)     | ![Live Recognition - Oluwuyi Olumide - Tech lead](image2.png)      |
-| ![Attendance Dashboard](attendance-dashboard.png) | ![Live Recognition - Ahmad El-Hussein](image3.png)                 |
+<table>
+  <tr>
+    <th width="50%">Dashboard View</th>
+    <th width="50%">Live Recognition</th>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <img src="onboarding.png" alt="Onboarding" width="100%" />
+    </td>
+    <td align="center">
+      <img src="image1.png" alt="Live Recognition - Donatus Valentine - Group Leader" width="100%" />
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <img src="enroll-dashboard.png" alt="Enrollment Dashboard" width="100%" />
+    </td>
+    <td align="center">
+      <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
+    </td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <img src="attendance-dashboard.png" alt="Attendance Dashboard" width="100%" />
+    </td>
+    <td align="center">
+      <img src="image3.png" alt="Live Recognition - Ahmad El-Hussein" width="100%" />
+    </td>
+  </tr>
+</table>
 
 ---
 
