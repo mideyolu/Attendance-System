@@ -1,4 +1,4 @@
-# 🧑‍💻 Facial Recognition Attendance System
+# 🧑‍💻 FacelyV1- Facial Recognition Attendance System
 
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
