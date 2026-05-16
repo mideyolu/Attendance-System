@@ -309,7 +309,7 @@ Smoothing applied to all pose estimations for stable detection.
 ## 🙏 References & Acknowledgments
 This project was developed with the support of:
 
-- **NCAIR (National Centre for Artificial Intelligence and Robotics)** – An agency under the **National Information Technology Development Agency (NITDA)**. NCAIR is dedicated to advancing artificial intelligence, robotics, and emerging technologies in Nigeria. We extend our sincere gratitude to the entire **NCAIR/NITDA AI Fellowship cohort** for collaborative testing, and feedback sessions.
+- **NCAIR (National Centre for Artificial Intelligence and Robotics)** – An agency under the **National Information Technology Development Agency (NITDA)**. NCAIR is dedicated to advancing artificial intelligence, robotics, and emerging technologies in Nigeria. We extend our sincere gratitude to the entire **NCAIR/NITDA AI Fellowship cohort** for feedback sessions, and collaboration.
 
 ### Program Facilitators
 | Role                      | Name               | 
