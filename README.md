@@ -103,7 +103,7 @@ To provide organizations, schools, or event organizers with a touchless, highly 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mideyolu/Attendance-System.git
+git clone https://github.com/mideyolu/Facely-Attendance-System.git
 cd Attendance-System
 ```
 
