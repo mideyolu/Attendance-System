@@ -242,6 +242,7 @@ Please include a section in your `README.md` or documentation that links back to
 ### 🛡️ Randomized Challenge Liveness Detection
 
 <p align="center">
+    <p>Static Image Spoof Prevention</p>
   <img src="static-image.gif" alt="Static Image Liveness Detection" width="80%" />
 </p>
 
@@ -302,6 +303,20 @@ Smoothing applied to all pose estimations for stable detection.
 
 4. **Ademola**
 5. **Sa'ad Abdul**
+
+---
+
+## 🙏 References & Acknowledgments
+This project was developed with the support of:
+
+- **NCAIR (National Centre for Artificial Intelligence and Robotics)** – An agency under the **National Information Technology Development Agency (NITDA)**. NCAIR is dedicated to advancing artificial intelligence, robotics, and emerging technologies in Nigeria. We extend our sincere gratitude to the entire **NCAIR/NITDA AI Fellowship cohort** for collaborative testing, and feedback sessions.
+
+### Program Facilitators
+| Role                      | Name               | 
+| ------------------------- | ------------------ | 
+| **Lead Facilitator**      | **Shaddai Adeniran**|
+| **Supporting Facilitator**| **Stephen Ayuba**| 
+| **Supporting Facilitator**| **Rizama Victor**|
 
 ---
 
