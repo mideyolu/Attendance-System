@@ -233,7 +233,7 @@ Please include a section in your `README.md` or documentation that links back to
       <img src="enroll-dashboard.png" alt="Enrollment Dashboard" width="100%" />
     </td>
     <td align="center">
-      <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
+        <img src="image2.png" alt="Live Recognition - Oluwuyi Olumide - Tech lead" width="100%" />
        <a href="https://www.linkedin.com/in/olumide-oluwuyi/">Linkedin</a>
     </td>
   </tr>
@@ -247,6 +247,45 @@ Please include a section in your `README.md` or documentation that links back to
     </td>
   </tr>
 </table>
+
+---
+
+
+### 🛡️ Randomized Challenge Liveness Detection
+
+<p align="center">
+  <img src="static-image.gif" alt="Static Image Liveness Detection" width="80%" />
+</p>
+
+#### 🎯 Challenges & Detection Thresholds
+
+| Challenge | Detection Metric | Threshold | Description |
+|-----------|------------------|-----------|-------------|
+| 👁️ **Blink** | Eye Aspect Ratio (EAR) | **< 0.19** | Eyes must close sufficiently to register a blink |
+| 👄 **Mouth Movement** | Mouth Aspect Ratio (MAR) | **> 0.35** | Natural mouth opening/speaking motion detected |
+| 🔄 **Head Pose - Left** | Yaw Angle | **> 0.015** | Head turned to the left beyond threshold |
+| 🔄 **Head Pose - Right** | Yaw Angle | **< -0.015** | Head turned to the right beyond threshold |
+
+#### ⚙️ Detection Logic
+
+```
+Blink Detection:    EAR < 0.19   → Blink confirmed
+Mouth Movement:     MAR > 0.35   → Natural mouth motion detected
+Head Turn Left:     Yaw > 0.015  → Left pose verified
+Head Turn Right:    Yaw < -0.015 → Right pose verified
+
+Smoothing applied to all pose estimations for stable detection.
+```
+
+#### 🛡️ What Each Challenge Prevents
+
+| Challenge | Attack Blocked |
+|-----------|----------------|
+| **Blink (EAR < 0.19)** | Printed photos, static screenshots |
+| **Mouth Movement (MAR > 0.35)** | Frozen expression attacks, deepfakes |
+| **Head Yaw Left/Right (±0.015)** | 3D masks, video replay attacks |
+
+> 🔐 **Security Note:** Challenges are randomized per session. All thresholds include temporal smoothing to prevent false rejections while maintaining security.
 
 ---
 
