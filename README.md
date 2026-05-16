@@ -243,7 +243,7 @@ Please include a section in your `README.md` or documentation that links back to
 
 <p align="center">
     <p>Static Image Spoof Prevention</p>
-  <img src="static-image.gif" alt="Static Image Liveness Detection" width="80%" />
+  <img src="static-image.gif" alt="Static Image Liveness Detection" width="100%" />
 </p>
 
 #### 🎯 Challenges & Detection Thresholds
@@ -309,7 +309,7 @@ Smoothing applied to all pose estimations for stable detection.
 ## 🙏 References & Acknowledgments
 This project was developed with the support of:
 
-- **NCAIR (National Centre for Artificial Intelligence and Robotics)** – An agency under the **National Information Technology Development Agency (NITDA)**. NCAIR is dedicated to advancing artificial intelligence, robotics, and emerging technologies in Nigeria. We extend our sincere gratitude to the entire **NCAIR/NITDA AI Fellowship cohort** for feedback sessions, and collaboration.
+- **NCAIR (National Centre for Artificial Intelligence and Robotics)** – An agency under the **National Information Technology Development Agency (NITDA)**. NCAIR is dedicated to advancing artificial intelligence, robotics, and emerging technologies in Nigeria. We extend our sincere gratitude to the entire **NCAIR/NITDA program cohort** for feedback sessions, and collaboration.
 
 ### Program Facilitators
 | Role                      | Name               | 
